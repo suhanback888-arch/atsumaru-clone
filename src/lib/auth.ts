@@ -40,5 +40,5 @@ export const authOptions: AuthOptions = {
       return session;
     },
   },
-  secret: process.env.NEXTAUTH_SECRET || "atsumaru-dev-secret-key-change-in-prod",
+  secret: process.env.NEXTAUTH_SECRET,
 };

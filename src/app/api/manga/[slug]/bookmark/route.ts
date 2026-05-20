@@ -16,26 +16,30 @@ export async function POST(
   if (!manga) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const userId = (session.user as Record<string, unknown>).id as string;
-  const existing = await prisma.bookmark.findUnique({
-    where: { userId_mangaId: { userId, mangaId: manga.id } },
-  });
 
-  if (existing) {
-    await prisma.bookmark.delete({ where: { id: existing.id } });
-    await prisma.manga.update({
-      where: { id: manga.id },
-      data: { bookmarkCount: { decrement: 1 } },
+  const result = await prisma.$transaction(async (tx) => {
+    const existing = await tx.bookmark.findUnique({
+      where: { userId_mangaId: { userId, mangaId: manga.id } },
     });
-    return NextResponse.json({ bookmarked: false });
-  }
 
-  await prisma.bookmark.create({ data: { userId, mangaId: manga.id } });
-  await prisma.manga.update({
-    where: { id: manga.id },
-    data: { bookmarkCount: { increment: 1 } },
+    if (existing) {
+      await tx.bookmark.delete({ where: { id: existing.id } });
+      await tx.manga.update({
+        where: { id: manga.id },
+        data: { bookmarkCount: { decrement: 1 } },
+      });
+      return { bookmarked: false };
+    }
+
+    await tx.bookmark.create({ data: { userId, mangaId: manga.id } });
+    await tx.manga.update({
+      where: { id: manga.id },
+      data: { bookmarkCount: { increment: 1 } },
+    });
+    return { bookmarked: true };
   });
 
-  return NextResponse.json({ bookmarked: true });
+  return NextResponse.json(result);
 }
 
 export async function GET(

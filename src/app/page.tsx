@@ -15,7 +15,11 @@ export default async function HomePage() {
     await Promise.all([
       getMangaByCategory({ viewCount: "desc" }),
       getMangaByCategory({ bookmarkCount: "desc" }),
-      getMangaByCategory({ updatedAt: "desc" }),
+      prisma.manga.findMany({
+        orderBy: [{ updatedAt: "desc" }, { viewCount: "desc" }],
+        take: 20,
+        select: { slug: true, title: true, coverImage: true, type: true },
+      }),
       getMangaByCategory({ updatedAt: "desc" }),
       getMangaByCategory({ rating: "desc" }),
       getMangaByCategory({ viewCount: "desc" }),
