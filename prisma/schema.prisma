@@ -1,0 +1,129 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String     @id @default(cuid())
+  username       String     @unique
+  email          String     @unique
+  passwordHash   String
+  avatarUrl      String?
+  bio            String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  bookmarks      Bookmark[]
+  readingHistory ReadingHistory[]
+  comments       Comment[]
+  commentVotes   CommentVote[]
+}
+
+model Manga {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  title       String
+  altTitles   String?
+  description String?
+  coverImage  String
+  bannerImage String?
+  type        String    @default("Manga")
+  status      String    @default("Ongoing")
+  year        Int?
+  author      String?
+  artist      String?
+  rating      Float     @default(0)
+  ratingCount Int       @default(0)
+  viewCount   Int       @default(0)
+  bookmarkCount Int     @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  chapters    Chapter[]
+  genres      MangaGenre[]
+  bookmarks   Bookmark[]
+  readingHistory ReadingHistory[]
+  comments    Comment[]
+}
+
+model Genre {
+  id     String       @id @default(cuid())
+  name   String       @unique
+  slug   String       @unique
+  mangas MangaGenre[]
+}
+
+model MangaGenre {
+  manga   Manga  @relation(fields: [mangaId], references: [id], onDelete: Cascade)
+  mangaId String
+  genre   Genre  @relation(fields: [genreId], references: [id], onDelete: Cascade)
+  genreId String
+
+  @@id([mangaId, genreId])
+}
+
+model Chapter {
+  id          String   @id @default(cuid())
+  manga       Manga    @relation(fields: [mangaId], references: [id], onDelete: Cascade)
+  mangaId     String
+  number      Float
+  title       String?
+  pages       String
+  createdAt   DateTime @default(now())
+  readingHistory ReadingHistory[]
+
+  @@unique([mangaId, number])
+}
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  manga     Manga    @relation(fields: [mangaId], references: [id], onDelete: Cascade)
+  mangaId   String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, mangaId])
+}
+
+model ReadingHistory {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  manga     Manga    @relation(fields: [mangaId], references: [id], onDelete: Cascade)
+  mangaId   String
+  chapter   Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  chapterId String
+  page      Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, mangaId])
+}
+
+model Comment {
+  id        String        @id @default(cuid())
+  content   String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  manga     Manga         @relation(fields: [mangaId], references: [id], onDelete: Cascade)
+  mangaId   String
+  parent    Comment?      @relation("CommentReplies", fields: [parentId], references: [id])
+  parentId  String?
+  replies   Comment[]     @relation("CommentReplies")
+  votes     CommentVote[]
+  upvotes   Int           @default(0)
+  createdAt DateTime      @default(now())
+}
+
+model CommentVote {
+  id        String  @id @default(cuid())
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId String
+  value     Int     @default(1)
+
+  @@unique([userId, commentId])
+}
