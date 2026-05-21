@@ -116,6 +116,8 @@ export const mangadex: ScraperSource = {
       coverImage: getCoverUrl(m.id, m.relationships),
       url: `https://mangadex.org/title/${m.id}`,
       type: getMangaType(m.attributes.originalLanguage),
+      status: mapStatus(m.attributes.status),
+      year: m.attributes.year ?? undefined,
     }));
   },
 

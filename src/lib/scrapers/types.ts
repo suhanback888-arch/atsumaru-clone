@@ -5,6 +5,8 @@ export interface MangaResult {
   coverImage: string;
   url: string;
   type?: string;
+  status?: string;
+  year?: number;
   latestChapter?: number;
 }
 
