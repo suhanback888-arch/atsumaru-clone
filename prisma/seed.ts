@@ -2,565 +2,236 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-const genres = [
-  "Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror",
-  "Isekai", "Martial Arts", "Mystery", "Psychological", "Romance",
-  "Sci-Fi", "Slice of Life", "Sports", "Supernatural", "Thriller",
-  "Tragedy", "School Life", "Seinen", "Shounen", "Shoujo", "Josei",
-  "Mecha", "Historical", "Military", "Music", "Ecchi", "Harem",
-];
+const MANGADEX_API = "https://api.mangadex.org";
 
-const mangaData = [
-  {
-    title: "The Greatest Estate Developer",
-    slug: "the-greatest-estate-developer",
-    type: "Manhwa",
-    status: "Ongoing",
-    year: 2022,
-    author: "Lee Hyunmin",
-    artist: "Kim Hyunsoo",
-    rating: 9.2,
-    ratingCount: 15420,
-    viewCount: 892000,
-    bookmarkCount: 45200,
-    description: "When civil engineering student Suho Kim falls asleep reading a fantasy novel, he wakes up as a character from the story. Using his modern knowledge of construction and development, he sets out to save the family estate.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/7c5cfc?text=Greatest+Estate",
-    genres: ["Fantasy", "Comedy", "Action", "Isekai"],
-  },
-  {
-    title: "The Knight Only Lives Today",
-    slug: "the-knight-only-lives-today",
-    type: "Manhwa",
-    status: "Ongoing",
-    year: 2023,
-    author: "Park Jiwon",
-    artist: "Park Jiwon",
-    rating: 8.9,
-    ratingCount: 12300,
-    viewCount: 756000,
-    bookmarkCount: 38900,
-    description: "A knight who has lost all purpose finds a reason to live when a mysterious woman appears. Each day brings new challenges and discoveries.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/9b82fc?text=Knight+Today",
-    genres: ["Action", "Fantasy", "Adventure", "Drama"],
-  },
-  {
-    title: "Shadow of the Supreme",
-    slug: "shadow-of-the-supreme",
-    type: "Manhwa",
-    status: "Ongoing",
-    year: 2023,
-    author: "Choi Sunwoo",
-    artist: "Choi Sunwoo",
-    rating: 8.7,
-    ratingCount: 9800,
-    viewCount: 623000,
-    bookmarkCount: 31200,
-    description: "In the shadows of the martial arts world, one warrior rises above all others with unmatched skill and determination.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/6a4de0?text=Shadow+Supreme",
-    genres: ["Action", "Martial Arts", "Fantasy", "Drama"],
-  },
-  {
-    title: "Sakamoto Days",
-    slug: "sakamoto-days",
-    type: "Manga",
-    status: "Ongoing",
-    year: 2020,
-    author: "Yuto Suzuki",
-    artist: "Yuto Suzuki",
-    rating: 8.8,
-    ratingCount: 18500,
-    viewCount: 945000,
-    bookmarkCount: 52000,
-    description: "Taro Sakamoto was once the greatest hitman. After falling in love, he retired to run a convenience store. But his past keeps catching up with him.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/4488ff?text=Sakamoto+Days",
-    genres: ["Action", "Comedy", "Shounen"],
-  },
-  {
-    title: "Blue Lock",
-    slug: "blue-lock",
-    type: "Manga",
-    status: "Ongoing",
-    year: 2018,
-    author: "Muneyuki Kaneshiro",
-    artist: "Yusuke Nomura",
-    rating: 8.6,
-    ratingCount: 22100,
-    viewCount: 1230000,
-    bookmarkCount: 61000,
-    description: "A revolutionary program called Blue Lock is created to find the world's greatest striker among 300 young players.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/44ff88?text=Blue+Lock",
-    genres: ["Sports", "Shounen", "Drama", "Psychological"],
-  },
-  {
-    title: "Omniscient Reader",
-    slug: "omniscient-reader",
-    type: "Manhwa",
-    status: "Completed",
-    year: 2020,
-    author: "Sing Shong",
-    artist: "Sleepy-C",
-    rating: 9.1,
-    ratingCount: 25600,
-    viewCount: 1450000,
-    bookmarkCount: 72000,
-    description: "Kim Dokja was an average office worker whose sole hobby was reading a web novel. One day, the novel becomes reality and only he knows what happens next.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/ff6644?text=Omniscient+Reader",
-    genres: ["Action", "Adventure", "Fantasy", "Supernatural"],
-  },
-  {
-    title: "The Infinite Mage",
-    slug: "the-infinite-mage",
-    type: "Manhwa",
-    status: "Ongoing",
-    year: 2023,
-    author: "Ryuui",
-    artist: "Ryuui",
-    rating: 8.5,
-    ratingCount: 8900,
-    viewCount: 534000,
-    bookmarkCount: 27800,
-    description: "An orphan boy discovers he has an extraordinary talent for magic and enrolls in the most prestigious magic academy.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/88ccff?text=Infinite+Mage",
-    genres: ["Fantasy", "Action", "Adventure", "School Life"],
-  },
-  {
-    title: "Chainsaw Man",
-    slug: "chainsaw-man",
-    type: "Manga",
-    status: "Ongoing",
-    year: 2018,
-    author: "Tatsuki Fujimoto",
-    artist: "Tatsuki Fujimoto",
-    rating: 9.0,
-    ratingCount: 32000,
-    viewCount: 1890000,
-    bookmarkCount: 89000,
-    description: "Denji is a young man trapped in poverty. After merging with his devil pet, he gains the power to transform parts of his body into chainsaws.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/ff4444?text=Chainsaw+Man",
-    genres: ["Action", "Horror", "Supernatural", "Shounen"],
-  },
-  {
-    title: "One Piece",
-    slug: "one-piece",
-    type: "Manga",
-    status: "Ongoing",
-    year: 1997,
-    author: "Eiichiro Oda",
-    artist: "Eiichiro Oda",
-    rating: 9.5,
-    ratingCount: 45000,
-    viewCount: 2500000,
-    bookmarkCount: 120000,
-    description: "Monkey D. Luffy sets off on an adventure to find the One Piece treasure and become King of the Pirates.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/ffcc00?text=One+Piece",
-    genres: ["Action", "Adventure", "Comedy", "Fantasy", "Shounen"],
-  },
-  {
-    title: "Eleceed",
-    slug: "eleceed",
-    type: "Manhwa",
-    status: "Ongoing",
-    year: 2018,
-    author: "Son Jeho",
-    artist: "ZHENA",
-    rating: 8.8,
-    ratingCount: 14200,
-    viewCount: 780000,
-    bookmarkCount: 41000,
-    description: "Jiwoo is a kind-hearted young man with superhuman speed. One day, he meets a mysterious injured cat that turns out to be a powerful awakened human.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/44ccff?text=Eleceed",
-    genres: ["Action", "Comedy", "Supernatural"],
-  },
-  {
-    title: "BERSERK",
-    slug: "berserk",
-    type: "Manga",
-    status: "Ongoing",
-    year: 1989,
-    author: "Kentaro Miura",
-    artist: "Kentaro Miura",
-    rating: 9.7,
-    ratingCount: 38000,
-    viewCount: 1650000,
-    bookmarkCount: 95000,
-    description: "Guts, a lone mercenary, wages a one-man war against demons in a dark medieval world. Branded with a mark that attracts evil, he fights for survival.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/cc3333?text=BERSERK",
-    genres: ["Action", "Adventure", "Drama", "Fantasy", "Horror", "Seinen"],
-  },
-  {
-    title: "Vagabond",
-    slug: "vagabond",
-    type: "Manga",
-    status: "Hiatus",
-    year: 1998,
-    author: "Takehiko Inoue",
-    artist: "Takehiko Inoue",
-    rating: 9.6,
-    ratingCount: 28000,
-    viewCount: 1200000,
-    bookmarkCount: 78000,
-    description: "Based on the life of legendary swordsman Miyamoto Musashi. A young warrior sets out on a journey of self-discovery through the way of the sword.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/886633?text=Vagabond",
-    genres: ["Action", "Adventure", "Drama", "Historical", "Seinen"],
-  },
-  {
-    title: "The Regressed Mercenary Has a Plan",
-    slug: "the-regressed-mercenary-has-a-plan",
-    type: "Manhwa",
-    status: "Ongoing",
-    year: 2023,
-    author: "Kim Youngbi",
-    artist: "Kim Youngbi",
-    rating: 8.4,
-    ratingCount: 7600,
-    viewCount: 456000,
-    bookmarkCount: 23400,
-    description: "A mercenary who died in his previous life returns to the past with all his memories. This time, he has a plan to change everything.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/cc8844?text=Regressed+Mercenary",
-    genres: ["Action", "Fantasy", "Adventure"],
-  },
-  {
-    title: "Return of the Blossoming Blade",
-    slug: "return-of-the-blossoming-blade",
-    type: "Manhwa",
-    status: "Ongoing",
-    year: 2022,
-    author: "Biga",
-    artist: "LICO",
-    rating: 8.6,
-    ratingCount: 11200,
-    viewCount: 589000,
-    bookmarkCount: 35600,
-    description: "A martial arts disciple returns to the past after witnessing the destruction of his sect. He aims to prevent the tragedy and restore his sect to glory.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/ff88cc?text=Blossoming+Blade",
-    genres: ["Action", "Martial Arts", "Fantasy", "Historical"],
-  },
-  {
-    title: "Lookism",
-    slug: "lookism",
-    type: "Manhwa",
-    status: "Ongoing",
-    year: 2014,
-    author: "Park Taejoon",
-    artist: "Park Taejoon",
-    rating: 8.3,
-    ratingCount: 19800,
-    viewCount: 980000,
-    bookmarkCount: 48000,
-    description: "A high school student discovers he can switch between two bodies - his original overweight body and a new tall, handsome one.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/66aaff?text=Lookism",
-    genres: ["Action", "Drama", "School Life", "Comedy"],
-  },
-  {
-    title: "Vinland Saga",
-    slug: "vinland-saga",
-    type: "Manga",
-    status: "Completed",
-    year: 2005,
-    author: "Makoto Yukimura",
-    artist: "Makoto Yukimura",
-    rating: 9.4,
-    ratingCount: 22000,
-    viewCount: 1100000,
-    bookmarkCount: 67000,
-    description: "Young Thorfinn grows up among Viking warriors after his father is killed. Driven by revenge, he follows the mercenary band across war-torn Europe.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/5588aa?text=Vinland+Saga",
-    genres: ["Action", "Adventure", "Drama", "Historical", "Seinen"],
-  },
-  {
-    title: "Solo Leveling",
-    slug: "solo-leveling",
-    type: "Manhwa",
-    status: "Completed",
-    year: 2018,
-    author: "Chugong",
-    artist: "Dubu",
-    rating: 9.0,
-    ratingCount: 42000,
-    viewCount: 2200000,
-    bookmarkCount: 105000,
-    description: "In a world where hunters fight monsters from mysterious gates, the weakest hunter discovers a secret system that allows only him to level up.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/8844ff?text=Solo+Leveling",
-    genres: ["Action", "Adventure", "Fantasy", "Supernatural"],
-  },
-  {
-    title: "Jujutsu Kaisen",
-    slug: "jujutsu-kaisen",
-    type: "Manga",
-    status: "Completed",
-    year: 2018,
-    author: "Gege Akutami",
-    artist: "Gege Akutami",
-    rating: 8.9,
-    ratingCount: 35000,
-    viewCount: 1980000,
-    bookmarkCount: 92000,
-    description: "A high school student discovers curses and jujutsu sorcerers when he consumes a powerful cursed object and enrolls in a school for sorcerers.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/aa44ff?text=Jujutsu+Kaisen",
-    genres: ["Action", "Supernatural", "Shounen", "Drama"],
-  },
-  {
-    title: "Spy x Family",
-    slug: "spy-x-family",
-    type: "Manga",
-    status: "Ongoing",
-    year: 2019,
-    author: "Tatsuya Endo",
-    artist: "Tatsuya Endo",
-    rating: 8.7,
-    ratingCount: 28000,
-    viewCount: 1560000,
-    bookmarkCount: 76000,
-    description: "A spy builds a fake family for a mission, unknowingly adopting a telepath and marrying a skilled fighter. Each family member hides their true identity.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/ff88aa?text=Spy+x+Family",
-    genres: ["Action", "Comedy", "Slice of Life", "Shounen"],
-  },
-  {
-    title: "Tower of God",
-    slug: "tower-of-god",
-    type: "Manhwa",
-    status: "Ongoing",
-    year: 2010,
-    author: "SIU",
-    artist: "SIU",
-    rating: 8.8,
-    ratingCount: 26000,
-    viewCount: 1340000,
-    bookmarkCount: 68000,
-    description: "A boy enters a mysterious tower chasing after his best friend who disappeared inside. Each floor presents new challenges and tests.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/ffaa44?text=Tower+of+God",
-    genres: ["Action", "Adventure", "Fantasy", "Mystery"],
-  },
-  {
-    title: "Absolute Regression",
-    slug: "absolute-regression",
-    type: "Manhwa",
-    status: "Ongoing",
-    year: 2023,
-    author: "Cheol Jongguk",
-    artist: "Cheol Jongguk",
-    rating: 8.3,
-    ratingCount: 6500,
-    viewCount: 412000,
-    bookmarkCount: 21000,
-    description: "After reaching the pinnacle of martial arts, a warrior finds himself transported back in time with all his future knowledge.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/ff6688?text=Absolute+Regression",
-    genres: ["Action", "Fantasy", "Martial Arts"],
-  },
-  {
-    title: "Slam Dunk",
-    slug: "slam-dunk",
-    type: "Manga",
-    status: "Completed",
-    year: 1990,
-    author: "Takehiko Inoue",
-    artist: "Takehiko Inoue",
-    rating: 9.3,
-    ratingCount: 20000,
-    viewCount: 890000,
-    bookmarkCount: 54000,
-    description: "A delinquent high schooler joins the basketball team and discovers a genuine passion and talent for the sport.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/ff8833?text=Slam+Dunk",
-    genres: ["Sports", "Comedy", "Drama", "School Life", "Shounen"],
-  },
-  {
-    title: "Fullmetal Alchemist",
-    slug: "fullmetal-alchemist",
-    type: "Manga",
-    status: "Completed",
-    year: 2001,
-    author: "Hiromu Arakawa",
-    artist: "Hiromu Arakawa",
-    rating: 9.5,
-    ratingCount: 30000,
-    viewCount: 1400000,
-    bookmarkCount: 82000,
-    description: "Two brothers use alchemy in search of the Philosopher's Stone to restore their bodies after a failed transmutation attempt.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/ddaa33?text=FMA",
-    genres: ["Action", "Adventure", "Drama", "Fantasy", "Shounen"],
-  },
-  {
-    title: "The Fragrant Flower Blooms with Dignity",
-    slug: "fragrant-flower-blooms",
-    type: "Manga",
-    status: "Ongoing",
-    year: 2021,
-    author: "Saka Mikami",
-    artist: "Saka Mikami",
-    rating: 8.4,
-    ratingCount: 5800,
-    viewCount: 345000,
-    bookmarkCount: 18900,
-    description: "Two students from rival schools cross paths and develop an unexpected connection despite fierce rivalry.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/ffaacc?text=Fragrant+Flower",
-    genres: ["Romance", "Drama", "School Life", "Shounen"],
-  },
-  {
-    title: "Revenge of the Baskerville Bloodhound",
-    slug: "revenge-baskerville-bloodhound",
-    type: "Manhwa",
-    status: "Ongoing",
-    year: 2023,
-    author: "Han Seoho",
-    artist: "Han Seoho",
-    rating: 8.5,
-    ratingCount: 7200,
-    viewCount: 478000,
-    bookmarkCount: 25600,
-    description: "Born as a neglected member of the Baskerville family, one warrior decides to forge his own path through cunning and martial prowess.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/884422?text=Baskerville",
-    genres: ["Action", "Fantasy", "Drama", "Martial Arts"],
-  },
-  {
-    title: "Witch Hat Atelier",
-    slug: "witch-hat-atelier",
-    type: "Manga",
-    status: "Ongoing",
-    year: 2016,
-    author: "Kamome Shirahama",
-    artist: "Kamome Shirahama",
-    rating: 9.1,
-    ratingCount: 11000,
-    viewCount: 567000,
-    bookmarkCount: 34000,
-    description: "In a world where magic is believed to be innate, a young girl discovers the secret that anyone can cast spells - and that this knowledge puts her in danger.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/aa88ff?text=Witch+Hat",
-    genres: ["Fantasy", "Adventure", "Drama", "Seinen"],
-  },
-  {
-    title: "Kagurabachi",
-    slug: "kagurabachi",
-    type: "Manga",
-    status: "Ongoing",
-    year: 2023,
-    author: "Takeru Hokazono",
-    artist: "Takeru Hokazono",
-    rating: 8.5,
-    ratingCount: 9200,
-    viewCount: 678000,
-    bookmarkCount: 36000,
-    description: "A young swordsmith's peaceful life is shattered when his father is murdered. Wielding an enchanted blade, he sets out on a quest for vengeance.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/4466ff?text=Kagurabachi",
-    genres: ["Action", "Fantasy", "Shounen"],
-  },
-  {
-    title: "Haikyu!!",
-    slug: "haikyu",
-    type: "Manga",
-    status: "Completed",
-    year: 2012,
-    author: "Haruichi Furudate",
-    artist: "Haruichi Furudate",
-    rating: 9.2,
-    ratingCount: 24000,
-    viewCount: 1050000,
-    bookmarkCount: 63000,
-    description: "A short but determined boy joins his high school volleyball team and must learn to work with his talented but difficult teammate.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/ff8844?text=Haikyu",
-    genres: ["Sports", "Comedy", "Drama", "School Life", "Shounen"],
-  },
-  {
-    title: "Pick Me Up",
-    slug: "pick-me-up",
-    type: "Manhwa",
-    status: "Ongoing",
-    year: 2023,
-    author: "Adam Park",
-    artist: "Adam Park",
-    rating: 8.2,
-    ratingCount: 6100,
-    viewCount: 389000,
-    bookmarkCount: 19800,
-    description: "Trapped inside a mobile game as a low-rank hero, a veteran gamer must use all his experience to survive and grow stronger.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/44ddaa?text=Pick+Me+Up",
-    genres: ["Action", "Fantasy", "Comedy", "Isekai"],
-  },
-  {
-    title: "Monster",
-    slug: "monster",
-    type: "Manga",
-    status: "Completed",
-    year: 1994,
-    author: "Naoki Urasawa",
-    artist: "Naoki Urasawa",
-    rating: 9.5,
-    ratingCount: 18000,
-    viewCount: 780000,
-    bookmarkCount: 48000,
-    description: "A brilliant surgeon saves a young boy's life, only to discover years later that the child has grown up to become a dangerous killer.",
-    coverImage: "https://placehold.co/300x400/1a1a2e/333366?text=Monster",
-    genres: ["Drama", "Mystery", "Psychological", "Thriller", "Seinen"],
-  },
-];
-
-const placeholderPages = [
-  "https://placehold.co/800x1200/111122/7c5cfc?text=Page+1",
-  "https://placehold.co/800x1200/111122/7c5cfc?text=Page+2",
-  "https://placehold.co/800x1200/111122/7c5cfc?text=Page+3",
-  "https://placehold.co/800x1200/111122/7c5cfc?text=Page+4",
-  "https://placehold.co/800x1200/111122/7c5cfc?text=Page+5",
-  "https://placehold.co/800x1200/111122/7c5cfc?text=Page+6",
-  "https://placehold.co/800x1200/111122/7c5cfc?text=Page+7",
-  "https://placehold.co/800x1200/111122/7c5cfc?text=Page+8",
-];
-
-async function main() {
-  console.log("Seeding database...");
-
-  const genreMap: Record<string, string> = {};
-  for (const name of genres) {
-    const slug = name.toLowerCase().replace(/\s+/g, "-");
-    const genre = await prisma.genre.upsert({
-      where: { slug },
-      update: {},
-      create: { name, slug },
-    });
-    genreMap[name] = genre.id;
-  }
-  console.log(`Created ${genres.length} genres`);
-
-  for (const data of mangaData) {
-    const { genres: mangaGenres, ...mangaFields } = data;
-    const manga = await prisma.manga.upsert({
-      where: { slug: mangaFields.slug },
-      update: mangaFields,
-      create: mangaFields,
-    });
-
-    for (const genreName of mangaGenres) {
-      const genreId = genreMap[genreName];
-      if (genreId) {
-        await prisma.mangaGenre.upsert({
-          where: { mangaId_genreId: { mangaId: manga.id, genreId } },
-          update: {},
-          create: { mangaId: manga.id, genreId },
-        });
-      }
-    }
-
-    const chapterCount = Math.floor(Math.random() * 40) + 10;
-    for (let i = 1; i <= chapterCount; i++) {
-      const pages = placeholderPages.map((p) =>
-        p.replace("Page", `${manga.title.substring(0, 10)}+Ch${i}+Pg`)
-      );
-      await prisma.chapter.upsert({
-        where: { mangaId_number: { mangaId: manga.id, number: i } },
-        update: {},
-        create: {
-          mangaId: manga.id,
-          number: i,
-          title: i === 1 ? "Prologue" : null,
-          pages: JSON.stringify(pages),
-        },
-      });
-    }
-
-    console.log(`Created ${manga.title} with ${chapterCount} chapters`);
-  }
-
-  console.log("Seeding complete!");
+interface MdRelationship {
+  id: string;
+  type: string;
+  attributes?: Record<string, unknown>;
 }
 
-main()
+interface MdManga {
+  id: string;
+  attributes: {
+    title: Record<string, string>;
+    altTitles?: Record<string, string>[];
+    description?: Record<string, string>;
+    status?: string;
+    year?: number;
+    tags?: { attributes: { name: Record<string, string>; group: string } }[];
+    originalLanguage?: string;
+  };
+  relationships: MdRelationship[];
+}
+
+function getTitle(titles: Record<string, string>): string {
+  return titles["en"] || titles["ja-ro"] || titles["ja"] || Object.values(titles)[0] || "Unknown";
+}
+
+function slugify(text: string): string {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+
+function getMangaType(lang?: string): string {
+  switch (lang) {
+    case "ko": return "Manhwa";
+    case "zh": case "zh-hk": return "Manhua";
+    default: return "Manga";
+  }
+}
+
+function mapStatus(status?: string): string {
+  switch (status) {
+    case "ongoing": return "Ongoing";
+    case "completed": return "Completed";
+    case "hiatus": return "Hiatus";
+    case "cancelled": return "Cancelled";
+    default: return "Unknown";
+  }
+}
+
+async function fetchMangaDex<T>(url: string): Promise<T> {
+  const res = await fetch(url, {
+    headers: { "User-Agent": "AtsumaryClone/1.0" },
+  });
+  if (!res.ok) throw new Error(`MangaDex API error: ${res.status}`);
+  return res.json();
+}
+
+async function seed() {
+  console.log("Seeding database with real manga from MangaDex...");
+
+  // Create sources
+  const sources = [
+    { name: "MangaDex", url: "https://mangadex.org", icon: "https://mangadex.org/favicon.ico" },
+    { name: "Asura Scans", url: "https://asuracomic.net", icon: null },
+    { name: "MangaFire", url: "https://mangafire.to", icon: null },
+    { name: "MangaKakalot", url: "https://mangakakalot.com", icon: null },
+    { name: "Manganato", url: "https://manganato.com", icon: null },
+    { name: "MangaPill", url: "https://mangapill.com", icon: null },
+  ];
+
+  for (const src of sources) {
+    await prisma.source.upsert({
+      where: { name: src.name },
+      update: {},
+      create: src,
+    });
+  }
+
+  const mdSource = await prisma.source.findUnique({ where: { name: "MangaDex" } });
+  if (!mdSource) throw new Error("MangaDex source not created");
+
+  // Fetch popular manga from MangaDex
+  console.log("Fetching popular manga from MangaDex...");
+  const popularData = await fetchMangaDex<{ data: MdManga[] }>(
+    `${MANGADEX_API}/manga?limit=30&includes[]=cover_art&includes[]=author&includes[]=artist&contentRating[]=safe&contentRating[]=suggestive&order[followedCount]=desc`
+  );
+
+  let imported = 0;
+
+  for (const m of popularData.data) {
+    try {
+      const title = getTitle(m.attributes.title);
+      const slug = slugify(title) + "-" + m.id.slice(0, 8);
+
+      const existing = await prisma.manga.findUnique({ where: { slug } });
+      if (existing) {
+        console.log(`  Skipping ${title} (already exists)`);
+        continue;
+      }
+
+      // Get cover art
+      const coverRel = m.relationships.find((r) => r.type === "cover_art");
+      const coverFile = coverRel?.attributes?.["fileName"] as string | undefined;
+      const coverImage = coverFile
+        ? `https://uploads.mangadex.org/covers/${m.id}/${coverFile}`
+        : "https://placehold.co/300x400/1a1a2e/7c5cfc?text=No+Cover";
+
+      // Get author/artist
+      const authorRel = m.relationships.find((r) => r.type === "author");
+      const artistRel = m.relationships.find((r) => r.type === "artist");
+      const author = authorRel?.attributes?.["name"] as string | undefined;
+      const artist = artistRel?.attributes?.["name"] as string | undefined;
+
+      // Get alt titles
+      const altTitles = (m.attributes.altTitles || [])
+        .map((at) => Object.values(at)[0])
+        .filter(Boolean)
+        .slice(0, 5);
+
+      // Get genres
+      const genres = (m.attributes.tags || [])
+        .filter((t) => t.attributes.group === "genre" || t.attributes.group === "theme")
+        .map((t) => getTitle(t.attributes.name));
+
+      // Create genre records
+      const genreIds: string[] = [];
+      for (const genreName of genres) {
+        const genre = await prisma.genre.upsert({
+          where: { slug: slugify(genreName) },
+          update: {},
+          create: { name: genreName, slug: slugify(genreName) },
+        });
+        genreIds.push(genre.id);
+      }
+
+      // Random-ish view counts for variety
+      const viewCount = Math.floor(Math.random() * 5000000) + 100000;
+      const bookmarkCount = Math.floor(viewCount * (Math.random() * 0.1 + 0.02));
+
+      // Create manga
+      const manga = await prisma.manga.create({
+        data: {
+          slug,
+          title,
+          altTitles: altTitles.length > 0 ? altTitles.join(" ; ") : null,
+          description: m.attributes.description?.["en"] || Object.values(m.attributes.description || {})[0] || null,
+          coverImage,
+          type: getMangaType(m.attributes.originalLanguage),
+          status: mapStatus(m.attributes.status),
+          year: m.attributes.year || null,
+          author: author || null,
+          artist: artist || null,
+          rating: Math.round((Math.random() * 3 + 7) * 10) / 10,
+          ratingCount: Math.floor(Math.random() * 10000) + 500,
+          viewCount,
+          bookmarkCount,
+          externalLinks: JSON.stringify({
+            MangaDex: `https://mangadex.org/title/${m.id}`,
+          }),
+        },
+      });
+
+      // Link genres
+      for (const genreId of genreIds) {
+        await prisma.mangaGenre.create({
+          data: { mangaId: manga.id, genreId },
+        });
+      }
+
+      // Link source
+      await prisma.mangaSource.create({
+        data: {
+          mangaId: manga.id,
+          sourceId: mdSource.id,
+          sourceSlug: slug,
+          sourceUrl: `https://mangadex.org/title/${m.id}`,
+        },
+      });
+
+      // Fetch chapters from MangaDex
+      console.log(`  Fetching chapters for ${title}...`);
+      await new Promise((r) => setTimeout(r, 300)); // rate limit
+
+      const chapterData = await fetchMangaDex<{
+        data: {
+          id: string;
+          attributes: {
+            chapter: string | null;
+            title: string | null;
+            publishAt: string;
+          };
+        }[];
+      }>(
+        `${MANGADEX_API}/manga/${m.id}/feed?limit=50&translatedLanguage[]=en&order[chapter]=desc`
+      );
+
+      const seenChapters = new Set<number>();
+      let chaptersCreated = 0;
+
+      for (const ch of chapterData.data) {
+        const num = parseFloat(ch.attributes.chapter || "0");
+        if (num <= 0 || seenChapters.has(num)) continue;
+        seenChapters.add(num);
+
+        await prisma.chapter.create({
+          data: {
+            mangaId: manga.id,
+            number: num,
+            title: ch.attributes.title || null,
+            pages: "[]",
+            sourceUrl: `https://mangadex.org/chapter/${ch.id}`,
+            sourceName: "MangaDex",
+            createdAt: new Date(ch.attributes.publishAt),
+          },
+        });
+        chaptersCreated++;
+      }
+
+      imported++;
+      console.log(`  Imported: ${title} (${chaptersCreated} chapters)`);
+
+      // Rate limit
+      await new Promise((r) => setTimeout(r, 500));
+    } catch (err) {
+      console.error(`  Error importing manga: ${err}`);
+    }
+  }
+
+  console.log(`\nSeeding complete! Imported ${imported} manga from MangaDex.`);
+}
+
+seed()
   .catch(console.error)
   .finally(() => prisma.$disconnect());

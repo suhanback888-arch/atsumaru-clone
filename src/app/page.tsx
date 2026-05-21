@@ -10,6 +10,18 @@ async function getMangaByCategory(orderBy: Record<string, string>, limit = 20) {
   });
 }
 
+function proxyCovers(
+  items: { slug: string; title: string; coverImage: string; type: string }[]
+) {
+  return items.map((m) => ({
+    ...m,
+    coverImage:
+      m.coverImage.startsWith("http") && !m.coverImage.includes("/api/proxy")
+        ? `/api/proxy?url=${encodeURIComponent(m.coverImage)}`
+        : m.coverImage,
+  }));
+}
+
 export default async function HomePage() {
   const [trending, mostBookmarked, hotUpdates, recentlyUpdated, topRated, popular, recentlyAdded] =
     await Promise.all([
@@ -28,14 +40,14 @@ export default async function HomePage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
-      <MangaCarousel title="Trending" href="/browse/trending" items={trending} />
-      <MangaCarousel title="Most Bookmarked" href="/browse/most-bookmarked" items={mostBookmarked} />
+      <MangaCarousel title="Trending" href="/browse/trending" items={proxyCovers(trending)} />
+      <MangaCarousel title="Most Bookmarked" href="/browse/most-bookmarked" items={proxyCovers(mostBookmarked)} />
       <SignupCTA />
-      <MangaCarousel title="Hot Updates" href="/browse/recently-updated" items={hotUpdates} />
-      <MangaCarousel title="Recently Updated" href="/browse/recently-updated" items={recentlyUpdated} />
-      <MangaCarousel title="Top Rated" href="/browse/top-rated" items={topRated} />
-      <MangaCarousel title="Popular" href="/browse/popular" items={popular} />
-      <MangaCarousel title="Recently Added" href="/browse/recently-added" items={recentlyAdded} />
+      <MangaCarousel title="Hot Updates" href="/browse/recently-updated" items={proxyCovers(hotUpdates)} />
+      <MangaCarousel title="Recently Updated" href="/browse/recently-updated" items={proxyCovers(recentlyUpdated)} />
+      <MangaCarousel title="Top Rated" href="/browse/top-rated" items={proxyCovers(topRated)} />
+      <MangaCarousel title="Popular" href="/browse/popular" items={proxyCovers(popular)} />
+      <MangaCarousel title="Recently Added" href="/browse/recently-added" items={proxyCovers(recentlyAdded)} />
     </div>
   );
 }

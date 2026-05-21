@@ -68,7 +68,15 @@ export default async function BrowsePage({ params, searchParams }: Props) {
 
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 md:gap-4">
         {mangas.map((m) => (
-          <MangaCard key={m.slug} {...m} />
+          <MangaCard
+            key={m.slug}
+            {...m}
+            coverImage={
+              m.coverImage.startsWith("http") && !m.coverImage.includes("/api/proxy")
+                ? `/api/proxy?url=${encodeURIComponent(m.coverImage)}`
+                : m.coverImage
+            }
+          />
         ))}
       </div>
 
