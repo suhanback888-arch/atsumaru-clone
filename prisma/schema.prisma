@@ -20,32 +20,36 @@ model User {
   readingHistory ReadingHistory[]
   comments       Comment[]
   commentVotes   CommentVote[]
+  ratings        Rating[]
 }
 
 model Manga {
-  id          String    @id @default(cuid())
-  slug        String    @unique
-  title       String
-  altTitles   String?
-  description String?
-  coverImage  String
-  bannerImage String?
-  type        String    @default("Manga")
-  status      String    @default("Ongoing")
-  year        Int?
-  author      String?
-  artist      String?
-  rating      Float     @default(0)
-  ratingCount Int       @default(0)
-  viewCount   Int       @default(0)
-  bookmarkCount Int     @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  chapters    Chapter[]
-  genres      MangaGenre[]
-  bookmarks   Bookmark[]
+  id            String    @id @default(cuid())
+  slug          String    @unique
+  title         String
+  altTitles     String?
+  description   String?
+  coverImage    String
+  bannerImage   String?
+  type          String    @default("Manga")
+  status        String    @default("Ongoing")
+  year          Int?
+  author        String?
+  artist        String?
+  rating        Float     @default(0)
+  ratingCount   Int       @default(0)
+  viewCount     Int       @default(0)
+  bookmarkCount Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  chapters      Chapter[]
+  genres        MangaGenre[]
+  bookmarks     Bookmark[]
   readingHistory ReadingHistory[]
-  comments    Comment[]
+  comments      Comment[]
+  ratings       Rating[]
+  sources       MangaSource[]
+  externalLinks String?
 }
 
 model Genre {
@@ -64,6 +68,27 @@ model MangaGenre {
   @@id([mangaId, genreId])
 }
 
+model Source {
+  id      String        @id @default(cuid())
+  name    String        @unique
+  url     String
+  icon    String?
+  enabled Boolean       @default(true)
+  mangas  MangaSource[]
+}
+
+model MangaSource {
+  id        String @id @default(cuid())
+  manga     Manga  @relation(fields: [mangaId], references: [id], onDelete: Cascade)
+  mangaId   String
+  source    Source @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  sourceId  String
+  sourceSlug String
+  sourceUrl  String
+
+  @@unique([mangaId, sourceId])
+}
+
 model Chapter {
   id          String   @id @default(cuid())
   manga       Manga    @relation(fields: [mangaId], references: [id], onDelete: Cascade)
@@ -71,6 +96,8 @@ model Chapter {
   number      Float
   title       String?
   pages       String
+  sourceUrl   String?
+  sourceName  String?
   createdAt   DateTime @default(now())
   readingHistory ReadingHistory[]
 
@@ -98,6 +125,17 @@ model ReadingHistory {
   chapterId String
   page      Int      @default(0)
   updatedAt DateTime @updatedAt
+
+  @@unique([userId, mangaId])
+}
+
+model Rating {
+  id      String @id @default(cuid())
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId  String
+  manga   Manga  @relation(fields: [mangaId], references: [id], onDelete: Cascade)
+  mangaId String
+  value   Int
 
   @@unique([userId, mangaId])
 }
